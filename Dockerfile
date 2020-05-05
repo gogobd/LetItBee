@@ -10,6 +10,7 @@ RUN apt-get update \
         unzip \
         screen \
         vim \
+        rubberband-cli \
     && apt-get clean
 
 # Install python miniconda3 + requirements
@@ -20,10 +21,8 @@ RUN curl -o Miniconda3-latest-Linux-x86_64.sh https://repo.anaconda.com/minicond
     && ./Miniconda3-latest-Linux-x86_64.sh -b -p "${MINICONDA_HOME}" \
     && rm Miniconda3-latest-Linux-x86_64.sh
 
-RUN conda install conda install -c conda-forge librosa  && \
+RUN conda install -c conda-forge librosa && \
     conda install numpy
-
-RUN pip install pyrubberband
 
 RUN wget https://github.com/cdr/code-server/releases/download/3.2.0/code-server-3.2.0-linux-x86_64.tar.gz && \
     tar -xzvf code-server-3.2.0-linux-x86_64.tar.gz && chmod +x code-server-3.2.0-linux-x86_64/code-server && \
@@ -31,12 +30,11 @@ RUN wget https://github.com/cdr/code-server/releases/download/3.2.0/code-server-
  
 COPY . /LetItBee
 WORKDIR /LetItBee
-RUN pip install requirements.txt
+
+RUN pip install pyrubberband
 
 # Start container in notebook mode
-CMD /code-server-3.2.0-linux-x86_64/code-server --bind-addr 0.0.0.0:8080 & \
-    python3 -m visdom.server & \
-    jupyter-lab --ip="*" --no-browser --allow-root
+CMD /code-server-3.2.0-linux-x86_64/code-server --bind-addr 0.0.0.0:8080
 
 # docker build -t letitbee .
-# docker run -p 8080:8080 -p 8097:8097 -p 8888:8888 -it tetitbee
+# docker run -e PASSWORD='yourpassword' -p 8080:8080 -it letitbee
